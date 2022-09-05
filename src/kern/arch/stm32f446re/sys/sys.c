@@ -53,24 +53,25 @@ uint32_t __NVIC_GetPriority(enum IRQn_TypeDef IRQn)
 }
 uint32_t __NVIC_GetActive(enum IRQn_TypeDef IRQn)
 {
-
+    return (NVIC->IABR[IRQn >> 5] & 1 << (IRQn & 0x1F)) != 0;
 }
 void __NVIC_EnableIRQn(enum IRQn_TypeDef IRQn)
 {
-
+    NVIC->ISER[IRQn >> 5] = 1 << (IRQn & 0x1F);
 }
+
 void __NVIC_DisableIRQn(enum IRQn_TypeDef IRQn)
 {
-
+    NVIC->ICER[IRQn >> 5] = 1 << (IRQn & 0x1F);
 }
 
 uint32_t __get_pending_IRQn(enum IRQn_TypeDef IRQn)
 {
-
+    return (NVIC->ISPR[IRQn >> 5] & 1 << (IRQn & 0x1F)) != 0;
 }
 void __clear_pending_IRQn(enum IRQn_TypeDef IRQn)
 {
-
+    NVIC->ICPR[IRQn >> 5] = 1 << (IRQn & 0x1F);
 }
 
 void __enable_irq()
@@ -88,26 +89,38 @@ void __unset_BASEPRI(uint32_t value)
 }
 void __set_BASEPRI(uint32_t value)
 {
-
+  __asm volatile ("MSR basepri, %0" : : "r" (value) );
 }
-
 uint32_t __get_PRIMASK()
 {
+  uint32_t result;
 
+  __asm volatile ("MRS %0, primask" : "=r" (result) );
+  return result;
 }
+
 void __set_PRIMASK(uint32_t priMask)
 {
-
+  __asm volatile ("MSR primask, %0" : : "r" (priMask) );
 }
+
 uint32_t __get_FAULTMASK()
 {
+  uint32_t result;
 
+  __asm volatile ("MRS %0, faultmask" : "=r" (result) );
+  return result;
 }
 
 void __enable_fault_irq()
 {
-
 }
+
+void __set_FAULTMASK(uint32_t faultMask)
+{
+  __asm volatile ("MSR primask, %0" : : "r" (faultMask) );
+}
+
 void __disable_fault_irq()
 {
 
