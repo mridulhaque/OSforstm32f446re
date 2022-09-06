@@ -42,15 +42,15 @@ void SysTick_Handler(void)
     mscount += 1000/(clock/(SysTick->LOAD+1));
 }
 
-
 void __NVIC_SetPriority(enum IRQn_TypeDef IRQn,uint32_t priority)
 {
-
+    NVIC->IP[IRQn] = (uint8_t)((priority << 4) & 0xFF);
 }
 uint32_t __NVIC_GetPriority(enum IRQn_TypeDef IRQn)
 {
-
+    return (NVIC->IP[IRQn] >> 4);
 }
+
 uint32_t __NVIC_GetActive(enum IRQn_TypeDef IRQn)
 {
     return (NVIC->IABR[IRQn >> 5] & 1 << (IRQn & 0x1F)) != 0;
@@ -69,6 +69,7 @@ uint32_t __get_pending_IRQn(enum IRQn_TypeDef IRQn)
 {
     return (NVIC->ISPR[IRQn >> 5] & 1 << (IRQn & 0x1F)) != 0;
 }
+
 void __clear_pending_IRQn(enum IRQn_TypeDef IRQn)
 {
     NVIC->ICPR[IRQn >> 5] = 1 << (IRQn & 0x1F);
@@ -76,21 +77,25 @@ void __clear_pending_IRQn(enum IRQn_TypeDef IRQn)
 
 void __enable_irq()
 {
-
+    __set_PRIMASK(0);
 }
+
 void __disable_irq()
 {
-
+    __set_PRIMASK(1);
 }
 
 void __unset_BASEPRI(uint32_t value)
 {
-
+    __set_BASEPRI(0);   // Not sure about this line weather it is required or not :)
+    __set_BASEPRI(value);
 }
+
 void __set_BASEPRI(uint32_t value)
 {
   __asm volatile ("MSR basepri, %0" : : "r" (value) );
 }
+
 uint32_t __get_PRIMASK()
 {
   uint32_t result;
@@ -112,16 +117,27 @@ uint32_t __get_FAULTMASK()
   return result;
 }
 
-void __enable_fault_irq()
-{
-}
-
 void __set_FAULTMASK(uint32_t faultMask)
 {
   __asm volatile ("MSR primask, %0" : : "r" (faultMask) );
 }
 
+void __enable_fault_irq()
+{
+    __set_FAULTMASK(1);
+}
+
 void __disable_fault_irq()
 {
+    __set_FAULTMASK(0);
+}
 
+void __enable_primask()
+{
+    __set_PRIMASK(1);
+}
+
+void __disable_primask()
+{
+    __set_PRIMASK(0);
 }
