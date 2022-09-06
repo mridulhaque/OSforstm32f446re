@@ -177,10 +177,11 @@ void __set_BASEPRI(uint32_t value);
 
 uint32_t __get_PRIMASK();
 void __set_PRIMASK(uint32_t priMask);
+void __enable_primask();
+void __disable_primask();
 
 uint32_t __get_FAULTMASK();
 void __set_FAULTMASK(uint32_t faultMask);
-
 void __enable_fault_irq();
 void __disable_fault_irq();
 
