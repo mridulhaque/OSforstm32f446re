@@ -42,12 +42,19 @@ void SysTick_Handler(void)
     mscount += 1000/(clock/(SysTick->LOAD+1));
 }
 
-void __NVIC_SetPriority(enum IRQn_TypeDef IRQn,uint32_t priority)
+void __NVIC_SetPriority(enum IRQn_TypeDef IRQn, uint32_t priority)
 {
-    NVIC->IP[IRQn] = (uint8_t)((priority << 4) & 0xFF);
+    if((int32_t)IRQn < 0) {
+        SCB->SHP[(IRQn & 0xF)-4] = (uint8_t)(priority << 4) & 0xFF;
+    }
+    else NVIC->IP[IRQn] = (uint8_t)((priority << 4) & 0xFF);
 }
+
 uint32_t __NVIC_GetPriority(enum IRQn_TypeDef IRQn)
 {
+    if((int32_t)IRQn < 0) {
+        return (SCB->SHP[(IRQn & 0xF)-4] >> 4);
+    }
     return (NVIC->IP[IRQn] >> 4);
 }
 
@@ -55,6 +62,7 @@ uint32_t __NVIC_GetActive(enum IRQn_TypeDef IRQn)
 {
     return (NVIC->IABR[IRQn >> 5] & 1 << (IRQn & 0x1F)) != 0;
 }
+
 void __NVIC_EnableIRQn(enum IRQn_TypeDef IRQn)
 {
     NVIC->ISER[IRQn >> 5] = 1 << (IRQn & 0x1F);
@@ -85,15 +93,13 @@ void __disable_irq()
     __set_PRIMASK(1);
 }
 
-void __unset_BASEPRI(uint32_t value)
-{
-    __set_BASEPRI(0);   // Not sure about this line weather it is required or not :)
-    __set_BASEPRI(value);
+void unset_BASEPRI(){
+  __asm volatile ("MSR basepri, %0" : : "r" ((uint32_t)0) : "memory");
 }
 
-void __set_BASEPRI(uint32_t value)
-{
-  __asm volatile ("MSR basepri, %0" : : "r" (value) );
+void __set_BASEPRI(uint32_t basePri_Value){
+  basePri_Value=(basePri_Value & 0xF)<<4; //according to programming manual basepri works on [7:4]
+  __asm volatile ("MSR basepri, %0" : : "r" (basePri_Value) : "memory");
 }
 
 uint32_t __get_PRIMASK()

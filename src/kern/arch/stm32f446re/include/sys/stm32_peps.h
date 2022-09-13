@@ -207,27 +207,32 @@ uint32_t volatile DMAR; /* Offset: 0x4C (R/W) TIM1&TIM8 DMA address for full tra
 uint32_t volatile OR;   /*!< TIM option register, Address offset: 0x50 */
 } TIM_TypeDef;
 
-typedef struct {
-  uint32_t CPUID;
-  uint32_t ICSR;
-  uint32_t VTOR;
-  uint32_t AIRCR;
-  uint32_t SCR;
-  uint32_t CCR;
-  uint32_t SHPR1;
-  uint32_t SHPR2;
-  uint32_t SHPR3;
-  uint32_t SHCSR;
-  uint32_t CFSR;
-  uint32_t HFSR;
-  uint32_t MMAR;
-  uint32_t BFAR;
-  uint32_t AFSR;
-  uint8_t reserved[76];
-  uint32_t CPACR;
-} SCB_type;
+typedef struct
+{
+  volatile  uint32_t CPUID;                   /*!< Offset: 0x000 (R/ )  CPUID Base Register                                   */
+  volatile uint32_t ICSR;                    /*!< Offset: 0x004 (R/W)  Interrupt Control and State Register                  */
+  volatile uint32_t VTOR;                    /*!< Offset: 0x008 (R/W)  Vector Table Offset Register                          */
+  volatile uint32_t AIRCR;                   /*!< Offset: 0x00C (R/W)  Application Interrupt and Reset Control Register      */
+  volatile uint32_t SCR;                     /*!< Offset: 0x010 (R/W)  System Control Register                               */
+  volatile uint32_t CCR;                     /*!< Offset: 0x014 (R/W)  Configuration Control Register                        */
+  volatile uint8_t  SHP[12];                 /*!< Offset: 0x018 (R/W)  System Handlers Priority Registers (4-7, 8-11, 12-15) */
+  volatile uint32_t SHCSR;                   /*!< Offset: 0x024 (R/W)  System Handler Control and State Register             */
+  volatile uint32_t CFSR;                    /*!< Offset: 0x028 (R/W)  Configurable Fault Status Register                    */
+  volatile uint32_t HFSR;                    /*!< Offset: 0x02C (R/W)  HardFault Status Register                             */
+  volatile uint32_t DFSR;                    /*!< Offset: 0x030 (R/W)  Debug Fault Status Register                           */
+  volatile uint32_t MMFAR;                   /*!< Offset: 0x034 (R/W)  MemManage Fault Address Register                      */
+  volatile uint32_t BFAR;                    /*!< Offset: 0x038 (R/W)  BusFault Address Register                             */
+  volatile uint32_t AFSR;                    /*!< Offset: 0x03C (R/W)  Auxiliary Fault Status Register                       */
+  volatile  uint32_t PFR[2];                  /*!< Offset: 0x040 (R/ )  Processor Feature Register                            */
+  volatile  uint32_t DFR;                     /*!< Offset: 0x048 (R/ )  Debug Feature Register                                */
+  volatile  uint32_t ADR;                     /*!< Offset: 0x04C (R/ )  Auxiliary Feature Register                            */
+  volatile  uint32_t MMFR[4];                 /*!< Offset: 0x050 (R/ )  Memory Model Feature Register                         */
+  volatile  uint32_t ISAR[5];                 /*!< Offset: 0x060 (R/ )  Instruction Set Attributes Register                   */
+    uint32_t RESERVED0[5];
+  volatile uint32_t CPACR;                   /*!< Offset: 0x088 (R/W)  Coprocessor Access Control Register                   */
+} SCB_TypeDef;
 
-#define SCB ((SCB_type *) 0xE000ED00 )
+#define SCB ((SCB_TypeDef *) 0xE000ED00 )
 
 
 #endif
